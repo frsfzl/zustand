@@ -14,11 +14,16 @@ interface HabitState {
   addHabit: (name: string, frequency: "daily" | "weekly") => void;
   removeHabit: (id: string) => void;
   toggleHabit: (id: string, date: string) => void;
+  fetchHabits: () => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const useHabitStore = create<HabitState>()(devtools(persist((set) => {
   return {
     habits: [],
+    isLoading: false,
+    error: null,
     addHabit: (name, frequency) => set((state) => {
       return {
         habits: [
@@ -48,6 +53,34 @@ const useHabitStore = create<HabitState>()(devtools(persist((set) => {
             : habit
         ),
       })),
+    fetchHabits: async () => {
+      set({ isLoading: true });
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const mockHabits: Habit[] = [
+          {
+            id: "1",
+            name: "Read",
+            frequency: "daily",
+            completedDates: [],
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "2",
+            name: "Exercise",
+            frequency: "daily",
+            completedDates: [],
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        set({
+          habits: mockHabits,
+          isLoading: false,
+        })
+      } catch (error) {
+        set({ error: "Failed to fetch habits", isLoading: false })
+      }
+    }
   };
 },
   {
