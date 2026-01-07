@@ -19,7 +19,7 @@ interface HabitState {
   error: string | null;
 }
 
-const useHabitStore = create<HabitState>()(devtools(persist((set) => {
+const useHabitStore = create<HabitState>()(devtools(persist((set, get) => {
   return {
     habits: [],
     isLoading: false,
@@ -56,6 +56,11 @@ const useHabitStore = create<HabitState>()(devtools(persist((set) => {
     fetchHabits: async () => {
       set({ isLoading: true });
       try {
+        const currentHabits = get().habits;
+        if (currentHabits.length > 0) {
+          set({ isLoading: false });
+          return;
+        }
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const mockHabits: Habit[] = [
           {
